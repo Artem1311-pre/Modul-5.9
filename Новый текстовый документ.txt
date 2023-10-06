@@ -1,0 +1,16 @@
+1. User.objects.create_user('Иван Иванов')
+User.objects.create_user('Петр Петров')
+
+2. Author.objects.create(user = Иван Иванов )
+Author.objects.create(user ='Петр Иванов')
+
+3. Category.objects.create(name="Новости")
+Category.objects.create(name="Спорт")
+Category.objects.create(name="Политика")
+Category.objects.create(name="Наука")
+
+4. Post.objects.create(post_type="Article", categories, author)
+ Post.objects.create(post_type="Article"categories, author)
+ Post.objects.create(post_type="News")
+
+5.Comments.objects.create(post, user, text)
