@@ -1,8 +1,8 @@
-from django.urls import path
-from .views import ProductsList, ProductDetail
-
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-   path('', ProductsList.as_view()),
-   path('int:pk', ProductDetail.as_view()),
+   path('admin/', admin.site.urls),
+   path('pages/', include('django.contrib.flatpages.urls')),
+   path('news/', include('news.urls')),
 ]
