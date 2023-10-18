@@ -27,35 +27,34 @@ class Author(models.Model):
 
 
 class Category(models.Model):
-
     sport = 'SP'
     policy = 'PO'
     education = 'ED'
     culture = 'CU'
     technology = "TECH"
 
-    SUBJECTS = [
-            ("policy", 'Политика'),
-            ("culture", 'Культура'),
-            ("education", 'Образование'),
-            ("sport", 'Спорт'),
-            ("technology", 'Технологии')
+    POSITION = [
+            (policy, 'Политика'),
+            (culture, 'Культура'),
+            (education, 'Образование'),
+            (sport, 'Спорт'),
+            (technology, 'Технологии')
     ]
 
-    subject = models.CharField(max_length=10, choices=SUBJECTS, default=sport, unique=True)
+    category = models.CharField(max_length=10, choices=POSITION, default=sport, unique=True)
 
     def __str__(self):
-        return self.subject.title()
+        return self.category
 
-Article = "AT"
-News = "NW"
-
-POST_TYPES = [
-    ('Article', 'Статья'),
-    ('News', 'Новость'),
-]
 
 class Post(models.Model):
+    Article = "AT"
+    News = "NW"
+
+    POST_TYPES = [
+        (Article, 'Статья'),
+        (News, 'Новость'),
+]
 
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     article_news = models.CharField(max_length=10, choices=POST_TYPES, default=News)
@@ -77,7 +76,7 @@ class Post(models.Model):
         return self.text[0:124] + '...'
 
     def __str__(self):
-        return f'{self.title.title()}:{self.text.title()}:{self.date_in}'
+        return (f'{self.title.title()}:{self.text.title()}:{self.date_in}:{self.author}')
 
 
 class PostCategory(models.Model):
