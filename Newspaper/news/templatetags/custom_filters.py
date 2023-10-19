@@ -2,7 +2,7 @@ from django import template
 
 register = template.Library()
 
-cens = ['Редиска', 'Дурак', 'Плохой']
+cens = ['Редис', 'Дурак', 'Плохой', 'Хозяев']
 
 @register.filter()
 def censor(word):

@@ -1,27 +1,44 @@
 {% extends 'flatpages/default.html' %}
+<!--{% load custom_filters %}-->
 {% load custom_filters %}
+
+{% load custom_tags %}
+
 {% block title %}
-news
+News
 {% endblock title %}
 
 {% block content %}
-    <h2>Всего новостей: {{ object_list|length }}</h2>
-    {% if news %}
-        <table>
-            <tr>
-                <td><b>Заголовок</b></td>
-                <td><b>Дата публикации</b></td>
-                <td><b>Публикация</b></td>
-            </tr>
-            {% for news in post %}
-            <tr>
-                <td>{{ news.title|censor }}</td>
-                <td>{{ news.time_in|date:'d M Y' }}</td>
-                <td>{{ news.text|truncatechars:20|censor }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <h2>Новостей нет!</h2>
-    {% endif %}
+<h1>{{ post.time_in|date:'d M Y' }}</h1>
+
+
+<h2> Заголовок</h2>
+{{ post.title|censor }}
+
+<h2>Публикация</h2>
+    {{ post.text|censor }}
+
+
+<h2>Дата публикации</h2>
+{% current_time '%b %d %Y' %}
+
+
+
+<!--    <h2>Всего новостей: {{ object_list|length }}</h2>-->
+<!--    {% if news %}-->
+<!--        <table>-->
+<!--            <tr>-->
+<!--                <td><b>Заголовок</b></td>-->
+
+<!--                <td><b>Публикация</b></td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>{{ news.title|censor }}</td>-->
+<!--                <td>{{ news.time_in|date:'d M Y' }}</td>-->
+<!--                <td>{{ news.text|truncatewords:20|censor }}</td>-->
+<!--            </tr>-->
+<!--        </table>-->
+<!--    {% else %}-->
+<!--        <h2>Новостей нет!</h2>-->
+<!--    {% endif %}-->
 {% endblock content %}

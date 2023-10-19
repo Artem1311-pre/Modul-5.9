@@ -6,6 +6,8 @@ news
 
 {% block content %}
     <h1>Всего новостей: {{ object_list|length }}</h1>
+
+    <h3>{{ time_now|date:'d M y' }}</h3>
     {% if news %}
         <table>
             <tr>
@@ -16,7 +18,7 @@ news
             {% for news in news %}
             <tr>
                 <td>{{ news.title|censor }}</td>
-                <td>{{ news.time_now|date:'d M Y' }}</td>
+                <td>{{ time_now|date:'d M y' }}</td>
                 <td>{{ news.text|truncatewords:20|censor }}</td>
             </tr>
             {% endfor %}
