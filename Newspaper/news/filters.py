@@ -1,19 +1,18 @@
-from django_filters import FilterSet
+from django_filters import FilterSet, DateFilter
 from .models import Post
+from django import forms
 
 
-# Создаем свой набор фильтров для модели Product.
-# FilterSet, который мы наследуем,
-# должен чем-то напомнить знакомые вам Django дженерики.
 class PostFilter(FilterSet):
+    min_pub_date = DateFilter(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        field_name='pub_date',
+        lookup_expr='date__gte'
+    )
     class Meta:
-        # В Meta классе мы должны указать Django модель,
-        # в которой будем фильтровать записи.
         model = Post
-        # В fields мы описываем по каким полям модели
-        # будет производиться фильтрация.
         fields = {
-            'author': ['exact'],
-           'category': ['exact'],
-           #  'time_now': ['lt', 'gt'],
+        'author': ['exact'],
+        'title': ['icontains'],
+        'article_news': ['exact'],
         }

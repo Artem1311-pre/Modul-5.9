@@ -7,14 +7,7 @@ news
 {% endblock title %}
 
 {% block content %}
-    <h1>Всего новостей: {{ object_list|length }}</h1>
-<!--   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}-->
-   <form action="" method="get">
-<!--       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}-->
-       {{ filterset.form.as_p }}
-<!--       {# Добавим кнопку отправки данных формы #}-->
-       <input type="submit" value="Найти" />
-   </form>
+<h1>Всего новостей: {{ object_list|length }}</h1>
 
     <h3>{{ time_now|date:'d M y' }}</h3>
     {% if news %}
@@ -27,7 +20,7 @@ news
             {% for news in news %}
             <tr>
                 <td>{{ news.title|censor }}</td>
-                <td>{{ time_now|date:'d M y' }}</td>
+                <td>{{ news.time_in|date:'d M Y' }}</td>
                 <td>{{ news.text|truncatewords:20|censor }}</td>
             </tr>
             {% endfor %}
