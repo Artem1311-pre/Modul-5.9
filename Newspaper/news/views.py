@@ -2,12 +2,14 @@ from datetime import datetime
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 from .models import Post
 from .filters import PostFilter
 from .forms import PostForm
 from django.core.paginator import Paginator
-from django.views.generic import TemplateView
+
 
 
 class PostList(ListView):
@@ -70,6 +72,9 @@ class NewsCreate(CreateView):
 class NewsUpdate(UpdateView):
     form_class = PostForm
     model = Post
+    template_name = 'news_edit.html'
+
+class ProtectedView(LoginRequiredMixin, TemplateView):
     template_name = 'news_edit.html'
 
 class NewsDelete(DeleteView):
