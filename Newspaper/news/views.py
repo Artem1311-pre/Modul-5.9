@@ -4,6 +4,8 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic.edit import CreateView
 
 from .models import Post
 from .filters import PostFilter
@@ -11,8 +13,11 @@ from .forms import PostForm
 from django.core.paginator import Paginator
 
 
-
-class PostList(ListView):
+class PostList(PermissionRequiredMixin, ListView):
+    permission_required = ('<post>.<add>_<news>',
+                           '<post>.<create>_<news>',
+                           '<post>.<delete>_<news>',
+                           '<post>.<change>_<news>')
     model = Post
     ordering = 'title'
     template_name = 'news.html'
@@ -58,7 +63,8 @@ class PostSearch(ListView):
         return context
 
 
-class NewsCreate(CreateView):
+class NewsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post')
     form_class = PostForm
     model = Post
     template_name = 'news_create.html'
