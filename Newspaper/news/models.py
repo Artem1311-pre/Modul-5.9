@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from django.contrib.auth.models import User
+from datetime import datetime
 
 class Author(models.Model):
 
@@ -42,6 +43,7 @@ class Category(models.Model):
     ]
 
     category = models.CharField(max_length=10, choices=POSITION, default=sport, unique=True)
+    subscribers = models.ManyToManyField(User, blank=True, related_name='categories')
 
     def __str__(self):
         return self.category
@@ -99,4 +101,15 @@ class Comment(models.Model):
         self.comment_rating -= 1
         self.save()
 
-# Create your models here.
+class Appointment(models.Model):
+    date = models.DateField(
+        default=datetime.utcnow,
+    )
+    client_name = models.CharField(
+        max_length=200
+    )
+    message = models.TextField()
+
+    def __str__(self):
+        return f'{self.client_name}: {self.message}'
+

@@ -1,19 +1,58 @@
-from datetime import datetime
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.views.generic.edit import CreateView
+from django.views import View
+from django.shortcuts import render, reverse, redirect
+from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives  # импортируем класс для создание объекта письма с html
+from datetime import datetime
+from django.shortcuts import get_object_or_404
+
+from django.template.loader import render_to_string  # импортируем функцию, которая срендерит наш html в текст
+from .models import Appointment
 
 from .models import Post
 from .filters import PostFilter
 from .forms import PostForm
-from django.core.paginator import Paginator
 
 
-class PostList(PermissionRequiredMixin, ListView):
+class AppointmentView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'appointment/make_appointment.html', {})
+
+    def post(self, request, *args, **kwargs):
+        appointment = Appointment(
+            date=datetime.strptime(request.POST['date'], '%Y-%m-%d'),
+            client_name=request.POST['client_name'],
+            message=request.POST['message'],
+        )
+        appointment.save()
+
+        # получаем наш html
+        html_content = render_to_string(
+            'appointment/appointment_created.html',
+            {
+                'appointment': appointment,
+            }
+        )
+
+        # в конструкторе уже знакомые нам параметры, да? Называются правда немного по-другому, но суть та же.
+        msg = EmailMultiAlternatives(
+            subject=f'{appointment.client_name} {appointment.date.strftime("%Y-%M-%d")}',
+            body=appointment.message,  # это то же, что и message
+            from_email='comrad.heisenberg@yandex.ru',
+            to=['akochkin@toyotatt.ru'],  # это то же, что и recipients_list
+        )
+        msg.attach_alternative(html_content, "text/html")  # добавляем html
+        msg.send()  # отсылаем
+
+        return redirect('appointment_created')
+
+class PostList(ListView):
     permission_required = ('<post>.<add>_<news>',
                            '<post>.<create>_<news>',
                            '<post>.<delete>_<news>',
@@ -63,7 +102,7 @@ class PostSearch(ListView):
         return context
 
 
-class NewsCreate(PermissionRequiredMixin, CreateView):
+class NewsCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
     permission_required = ('news.add_post')
     form_class = PostForm
     model = Post
@@ -75,7 +114,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
         news.save()
         return super().form_valid(form)
 
-class NewsUpdate(UpdateView):
+class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
@@ -110,6 +149,30 @@ class ArticlesDelete(CreateView):
     model = Post
     template_name = 'articles_delete.html'
     success_url = reverse_lazy('post_list')
+
+class CategoryListView(PostList):
+    model = Post
+    template_name = 'news.html'
+    context_object_name = 'news_edit.html'
+
+    def get_queryset(self):
+        self.category = get_object_or_404(Category, id=self.kwargs['pk'])
+        queryset = Post.objects.filter(category=self.category).order_by('-created_at')
+        return queryset
+
+    def get_context_data(self,**kwargs):
+        context = super.get_context_data(**kwargs)
+        context['is_nor_subscriber'] = self.request.user not in self.category.subscribers.all()
+        context['category'] = self.category
+        return context
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.add(user)
+    message = 'Здравствуйте!'
+    return render(request, 'subscribe.html', {'category': category, 'message':message})
 
 
 
