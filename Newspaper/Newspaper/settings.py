@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'widget_tweaks',
     'django.contrib.auth.decorators',
+    'news.apps.NewsConfig',
     'appointments',
     'allauth',
     'allauth.account',

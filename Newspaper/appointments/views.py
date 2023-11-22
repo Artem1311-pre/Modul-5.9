@@ -1,29 +1,42 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver  # импортируем нужный декоратор
+from django.core.mail import mail_managers
 from django.shortcuts import render, reverse, redirect
 from django.views import View
-from django.core.mail import send_mail
+from django.core.mail import mail_admins  # импортируем функцию для массовой отправки писем админам
 from datetime import datetime
-from .models import Appointment
+from appointments.models import Appointment
 
 
+# в декоратор передаётся первым аргументом сигнал, на который будет реагировать эта функция, и в отправители надо передать также модель
+@receiver(post_save, sender=Appointment)
+def notify_managers_appointment(sender, instance, created, **kwargs):
+    if created:
+        subject = f'{instance.client_name} {instance.date.strftime("%d %m %Y")}'
+    else:
+        subject = f'Appointment changed for {instance.client_name} {instance.date.strftime("%d %m %Y")}'
+
+    mail_managers(
+        subject=subject,
+        message=instance.message,
+    )
 class AppointmentView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'make_appointment.html', {})
 
     def post(self, request, *args, **kwargs):
-        appointments = Appointment(
+        appointment = Appointment(
             date=datetime.strptime(request.POST['date'], '%Y-%m-%d'),
             client_name=request.POST['client_name'],
             message=request.POST['message'],
         )
-        appointments.save()
+        appointment.save()
 
-        # отправляем письмо
-        send_mail(
-            subject=f'{appointments.client_name} {appointments.date.strftime("%Y-%M-%d")}',
-            # имя клиента и дата записи будут в теме для удобства
-            message=appointments.message,  # сообщение с кратким описанием проблемы
-            from_email='comrad.heisenberg@yandex.ru',  # здесь указываете почту, с которой будете отправлять (об этом попозже)
-            recipient_list=[]  # здесь список получателей. Например, секретарь, сам врач и т. д.
+        # отправляем письмо всем админам по аналогии с send_mail, только здесь получателя указывать не надо
+        mail_admins(
+            subject=f'{appointment.client_name} {appointment.date.strftime("%d %m %Y")}',
+            message=appointment.message,
         )
 
-        return redirect('appointment:make_appointment')
+        return redirect('appointments:make_appointment')
+

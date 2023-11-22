@@ -1,6 +1,5 @@
-from django.db import models
 from datetime import datetime
-
+from django.db import models
 
 class Appointment(models.Model):
     date = models.DateField(
